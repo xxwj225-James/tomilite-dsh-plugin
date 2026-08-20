@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check & build (tsc → lib/)
+        run: npm run build
+
+      - name: Run tests (smoke + Cordis load, no network)
+        run: npm test
+
+      - name: Ensure committed lib/ is fresh
+        run: git diff --exit-code -- lib/ && echo "lib/ is up to date"
